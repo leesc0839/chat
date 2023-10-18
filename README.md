@@ -20,16 +20,23 @@ tcp packet 분석해보기
 # 생각 해볼점
 - 연결 과정
   - sequence number는 이론에서 배웠던 방식과 일치하게 random number로 연결
+  - 이론에서 배웠던 3-way handshake와 달리, server가 마지막에 ack을 하나 더 보내는데, 서버가 연결과정을 마치고, 클라이언트에게 데이터를 전송할 준비가 되었음을 나타내는 패킷을 하나 더 보냄.
     
-- 통신 과정  
-  - sequence number가 0부터 시작하였음. 심지어 server는 1부터 시작.
-  - cumulative ack 방식이 맞지만, ack번호가 sequence 번호의 바로 다음번호, 혹은 마지막 번호로 보내짐.
+- 통신 과정
+  - cumulative ack 방식이지만, 이론과 약간 차이 있음.
+  - client는 sequence number를 0부터 보냄, server는 1부터 시작.
+  - client는 ack으로 마지막 sequence 번호를 보냄.
+    - ex) server가 seq 0:17을 보내면, ack으로 17을 보냄. 
+  - server는 ack으로 마지막 sequence 번호 + 1를 보냄. // 이론과 일치
+    - ex) client가 seq 0:17을 보내면, ack으로 18을 보냄.
 
 - 종료 과정
-  - half-close 방식을 적용해봄
+  - half-close 방식을 적용.
   - client가 fin을 보내고, 실제로 서버는 데이터를 더 보낼 수 있었음.
-  - fin, ack, fin, ack이 실제로 오고 가는 것을 확인   
+  - fin, ack, fin, ack이 실제로 오고 가는 것을 확인.
+  - 이론과 일치하게 , client server 모두 ack 번호가 sequence 번호 + 1로 보내짐.
 
-이론과 대부분 비슷하지만, 실제 패킷 번호들은 조금씩 차이점이 나는 것을 발견할 수 있었음.
-그러나 tcp 패킷을 분석해서 데이터 통신 과정을 눈으로 보는 것은 즐거운 경험이었다.
-왜 이론과 차이가 발생하는지 알아볼 예정.
+# 알게된 점
+tcpdump으로 관찰한 결과, 이론과 흐름은 모두 일치, 미세하게 차이가 존재했다.
+매우 간단한 예시이지만, tcp 패킷을 분석해서 데이터 통신 과정을 눈으로 보는 것은 즐거운 경험이었다.
+tcp는 구현이 이론과 약간은 다를 수 있다는 것을 깨달았다. 흐름은 동일하였다.
